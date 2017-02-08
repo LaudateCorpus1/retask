@@ -35,6 +35,7 @@ import six
 from .task import Task
 from .exceptions import ConnectionError
 
+KEY_PREFIX = 'retaskqueue-'
 
 class Queue(object):
     """
@@ -47,7 +48,7 @@ class Queue(object):
     def __init__(self, name, config=None):
         specified_config = config or {}
         self.name = name
-        self._name = 'retaskqueue-' + name
+        self._name = KEY_PREFIX + name
         self.config = {
             'host': 'localhost',
             'port': 6379,
@@ -69,11 +70,11 @@ class Queue(object):
             raise ConnectionError('Queue is not connected')
 
         try:
-            data = self.rdb.keys("retaskqueue-*")
+            data = self.rdb.keys(KEY_PREFIX + '*')
         except redis.exceptions.ConnectionError as err:
             raise ConnectionError(str(err))
 
-        return [name[12:] for name in data]
+        return [name.decode()[len(KEY_PREFIX):] for name in data]
 
     @property
     def length(self):
@@ -320,4 +321,3 @@ class Job(object):
             return True
         else:
             return False
-
