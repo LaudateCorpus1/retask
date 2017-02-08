@@ -31,7 +31,6 @@ retask Queue implementation
 import json
 import redis
 import uuid
-import six
 from .task import Task
 from .exceptions import ConnectionError
 
@@ -192,8 +191,6 @@ class Queue(object):
         data = self.rdb.rpop(self._name)
         if not data:
             return None
-        if isinstance(data, six.binary_type):
-            data = six.text_type(data, 'utf-8', errors = 'replace')
         task = Task()
         task.__dict__ = json.loads(data.decode())
         return task
