@@ -157,7 +157,7 @@ class Queue(object):
         data = self.rdb.brpop(self._name, wait_time)
         if data:
             task = Task()
-            task.__dict__ = json.loads(data[1])
+            task.__dict__ = json.loads(data[1].decode())
             return task
         else:
             return False
@@ -195,7 +195,7 @@ class Queue(object):
         if isinstance(data, six.binary_type):
             data = six.text_type(data, 'utf-8', errors = 'replace')
         task = Task()
-        task.__dict__ = json.loads(data)
+        task.__dict__ = json.loads(data.decode())
         return task
 
     def enqueue(self, task):
@@ -291,7 +291,7 @@ class Job(object):
         data = self.rdb.rpop(self.urn)
         if data:
             self.rdb.delete(self.urn)
-            data = json.loads(data)
+            data = json.loads(data.decode())
             self.__result = data
             return data
         else:
@@ -316,7 +316,7 @@ class Job(object):
         data = self.rdb.brpop(self.urn, wait_time)
         if data:
             self.rdb.delete(self.urn)
-            data = json.loads(data[1])
+            data = json.loads(data[1].decode())
             self.__result = data
             return True
         else:
